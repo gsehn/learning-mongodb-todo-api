@@ -36,7 +36,7 @@ mongoose.Promise = global.Promise;
 
 mongoose.connect(mongodbURL, { useMongoClient: true })
 .then(() => {
-	console.log(`Mongoose connected\n`);
+	//console.log(`Mongoose connected\n`);
 })
 .catch((err) => console.log(`Mongoose Error`, err));
 
