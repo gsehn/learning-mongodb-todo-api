@@ -44,9 +44,9 @@ app.get('/todos/:id', (req, res) => {
 	}
 
 	Todo.findById(id)
-	.then((value) => {
-		if (value) {
-			res.send(value);
+	.then((todo) => {
+		if (todo) {
+			res.send(todo);
 		} else {
 			res.status(404).send();
 		}
@@ -55,16 +55,6 @@ app.get('/todos/:id', (req, res) => {
 		console.log(err);
 		res.status(400).send();
 	});
-
-	// Validate ID
-	// 	404 - empty
-	//
-	// findByid
-	// 	success
-	// 		exists - send it back
-	// 		!exists - 404 - empty
-	// 	error
-	// 		400 - empty
 
 });
 
