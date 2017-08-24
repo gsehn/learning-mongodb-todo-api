@@ -4,9 +4,13 @@
   "description": "",
   "main": "app.js",
   "scripts": {
+		"start": "node server/server.js",
     "test": "mocha server/**/*.test.js",
 		"test-watch": "nodemon --exec 'npm test'"
   },
+	"engines": {
+		"node": "v8.2.1"
+	},
   "repository": "http://gs17091@sep0232pa.sep.local/sep2/pocs/learning-mongodb-mongoose.git",
   "author": "",
   "license": "ISC",

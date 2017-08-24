@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const mongodbURL = 'mongodb://localhost:27017/TodoApp';
+const mongodbURL = process.env.MONGODB_URI || 'mongodb://localhost:27017/TodoApp';
 
 // let mongodbURL = "";
 //
