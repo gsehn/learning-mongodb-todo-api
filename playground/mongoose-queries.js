@@ -1,6 +1,6 @@
 const {ObjectID} = require('mongodb');
 
-const {mongoose} = require('./../server/db/mongoose');
+const {mongoose} = require('./../server/db/mongoose'); // eslint-disable-line
 const {Todo} = require('./../server/models/Todo');
 const {User} = require('./../server/models/User');
 
