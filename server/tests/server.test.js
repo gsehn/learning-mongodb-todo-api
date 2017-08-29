@@ -4,22 +4,12 @@ const {ObjectID} = require('mongodb');
 
 const {app} = require('./../server');
 const {Todo} = require('./../models/Todo');
+const {todos, populateTodos, users, populateUsers} = require('./seed/seed');
 const {User} = require('./../models/User');
 
 describe('/todos', () => {
-	const todos = [
-		{ _id: new ObjectID(), text: 'First test todo' },
-		{ _id: new ObjectID(), text: 'Second test todo', completed: true, completedAt: 123123123 },
-	];
 
-	beforeEach((done) => {
-		Todo.remove({})
-		.then(() => {
-			return Todo.insertMany(todos);
-		})
-		.then(() => done())
-		.catch((err) => console.log(err));
-	});
+	beforeEach(populateTodos);
 
 	describe('POST /todos', () => {
 		it('should create a new Todo', (done) => {
@@ -188,21 +178,8 @@ describe('/todos', () => {
 });
 
 describe('/users', () => {
-	const users = [
-		{ _id: new ObjectID(), email: 'gtsehn0@gmail.com', password: '123456' },
-		{ _id: new ObjectID(), email: 'gtsehn1@gmail.com', password: '123456' },
-		{ _id: new ObjectID(), email: 'a@a.c', password: '123456' },
-		{ _id: new ObjectID(), email: 'gtsehn2@gmail.com', password: '12345' }
-	];
 
-	beforeEach((done) => {
-		User.remove({})
-		.then(() => {
-			return User.insertMany([users[0]]);
-		})
-		.then(() => done())
-		.catch((err) => console.log(err));
-	});
+	beforeEach(populateUsers);
 
 	describe('POST /users', () => {
 		it('should create a user properly', (done) => {
@@ -213,19 +190,21 @@ describe('/users', () => {
 				.expect((res) => {
 					expect(res.body.user.email).toBeA('string');
 					expect(res.body.user.email).toBe(users[1].email);
-					expect(res.body.user.password).toBe(users[1].password);
+					expect(res.headers['x-auth']).toExist();
 				})
 				.end((err) => {
 					if (err) {
 						return done(err);
 					}
 
-					const {email} = users[1];
+					const {email, password} = users[1];
+
 
 					User.find({ email })
 					.then((users) => {
 						expect(users.length).toBe(1);
 						expect(users[0].email).toBe(email);
+						expect(users[0].password).toNotBe(password);
 						done();
 					})
 					.catch((err) => done(err));
@@ -258,4 +237,31 @@ describe('/users', () => {
 				.end(done);
 		});
 	});
+
+	describe('GET /users/me', () => {
+
+		it('should return user if authenticated', (done) => {
+
+			request(app)
+				.get('/users/me')
+				.set('x-auth', users[4].tokens[0].token)
+				.expect(200)
+				.expect((res) => {
+					expect(res.body._id).toBe(users[4]._id.toHexString());
+					expect(res.body.email).toBe(users[4].email);
+				})
+				.end(done);
+		});
+
+		it('should should return 401 if user is not authenticated', (done) => {
+			request(app)
+				.get('/users/me')
+				.expect(401)
+				.expect((res) => {
+					expect(res.body).toEqual({});
+				})
+				.end(done);
+		});
+	});
+
 });
