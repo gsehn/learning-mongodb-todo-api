@@ -304,14 +304,14 @@ describe('/users', () => {
 				.post('/users/login')
 				.send(user)
 				.expect(400)
-				.end((err, res) => {
+				.end((err, res) => { // eslint-disable-line
 					if (err) {
 						return done(err);
 					}
 
 					User.findOne({email: user.email})
 					.then((user) => {
-						expect(user.tokens.length).toBe(0)
+						expect(user.tokens.length).toBe(0);
 						done();
 					})
 					.catch((err) => {
