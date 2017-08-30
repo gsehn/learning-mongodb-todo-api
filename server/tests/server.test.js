@@ -1,5 +1,6 @@
 const expect = require('expect');
 const request = require('supertest');
+const _ = require('lodash');
 const {ObjectID} = require('mongodb');
 
 const {app} = require('./../server');
@@ -260,6 +261,44 @@ describe('/users', () => {
 				.expect((res) => {
 					expect(res.body).toEqual({});
 				})
+				.end(done);
+		});
+	});
+
+	describe('POST /users/login', () => {
+
+		it('should login successfully', (done) => {
+			const user = _.pick(users[4], ['email', 'password']);
+
+			request(app)
+				.post('/users/login')
+				.send(user)
+				.expect(200)
+				.expect((res) => {
+					expect(res.headers['x-auth']).toExist();
+				})
+				.end(done);
+		});
+
+		it('should reject wrong password', (done) => {
+			const user = _.pick(users[4], ['email', 'password']);
+			user.password += 'a';
+
+			request(app)
+				.post('/users/login')
+				.send(user)
+				.expect(400)
+				.end(done);
+		});
+
+		it('should reject user not found', (done) => {
+			request(app)
+				.post('/users/login')
+				.send({
+					email: 'emailDoesntExist@examplenonexistent.com',
+					password: '123123123'
+				})
+				.expect(400)
 				.end(done);
 		});
 	});

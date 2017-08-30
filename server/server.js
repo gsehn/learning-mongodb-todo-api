@@ -3,6 +3,7 @@ require('./config/config');
 const express = require('express');
 const bodyParser = require('body-parser');
 const _ = require('lodash');
+// const bc = require('bcryptjs');
 const {ObjectID} = require('mongodb');
 
 const {mongoose} = require('./db/mongoose'); // eslint-disable-line
@@ -126,6 +127,26 @@ app.post('/users', (req, res) => {
 
 app.get('/users/me', authenticate, (req, res) => {
 	res.send(req.user);
+});
+
+app.post('/users/login', (req, res) => {
+	const {email, password} = req.body;
+
+	User.findByCredentials(email, password)
+	.then((user) => {
+		if (!user) {
+			return res.status(400).send();
+		}
+		user.generateAuthToken()
+		.then((token) => {
+			res.header('x-auth', token).send({user});
+		});
+
+	})
+	.catch(() => {
+		return res.status(400).send();
+	});
+
 });
 
 app.listen(port, () => {
