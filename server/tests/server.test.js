@@ -268,7 +268,7 @@ describe('/users', () => {
 	describe('POST /users/login', () => {
 
 		it('should login successfully', (done) => {
-			const user = _.pick(users[4], ['email', 'password']);
+			const user = _.pick(users[5], ['email', 'password']);
 
 			request(app)
 				.post('/users/login')
@@ -277,18 +277,47 @@ describe('/users', () => {
 				.expect((res) => {
 					expect(res.headers['x-auth']).toExist();
 				})
-				.end(done);
+				.end((err, res) => {
+					if (err) {
+						return done(err);
+					}
+
+					User.findOne({email: user.email})
+					.then((user) => {
+						expect(user.tokens[0]).toInclude({
+							access: 'auth',
+							token: res.headers['x-auth']
+						});
+						done();
+					})
+					.catch((err) => {
+						done(err);
+					});
+				});
 		});
 
 		it('should reject wrong password', (done) => {
-			const user = _.pick(users[4], ['email', 'password']);
+			const user = _.pick(users[5], ['email', 'password']);
 			user.password += 'a';
 
 			request(app)
 				.post('/users/login')
 				.send(user)
 				.expect(400)
-				.end(done);
+				.end((err, res) => {
+					if (err) {
+						return done(err);
+					}
+
+					User.findOne({email: user.email})
+					.then((user) => {
+						expect(user.tokens.length).toBe(0)
+						done();
+					})
+					.catch((err) => {
+						done(err);
+					});
+				});
 		});
 
 		it('should reject user not found', (done) => {
