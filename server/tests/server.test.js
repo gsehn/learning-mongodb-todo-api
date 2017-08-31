@@ -10,6 +10,7 @@ const {User} = require('./../models/User');
 
 describe('/todos', () => {
 
+	beforeEach(populateUsers);
 	beforeEach(populateTodos);
 
 	describe('POST /todos', () => {
@@ -18,6 +19,7 @@ describe('/todos', () => {
 
 			request(app)
 				.post('/todos')
+				.set('x-auth', users[4].tokens[0].token)
 				.send({text})
 				.expect(200)
 				.expect((res) => {
@@ -41,6 +43,7 @@ describe('/todos', () => {
 		it('should not create Todo with invalid body data', (done) => {
 			request(app)
 				.post('/todos')
+				.set('x-auth', users[4].tokens[0].token)
 				.send({})
 				.expect(400)
 				.end((err) => {
@@ -63,6 +66,7 @@ describe('/todos', () => {
 		it('should get all todos', (done) => {
 			request(app)
 				.get('/todos')
+				.set('x-auth', users[4].tokens[0].token)
 				.expect(200)
 				.expect((res) => {
 					expect(res.body.todos.length).toBe(2);
@@ -75,6 +79,7 @@ describe('/todos', () => {
 		it('should return a todo', (done) => {
 			request(app)
 				.get(`/todos/${todos[0]._id.toHexString()}`)
+				.set('x-auth', users[4].tokens[0].token)
 				.expect(200)
 				.expect((res) => {
 					// console.log(res.body);
@@ -87,6 +92,7 @@ describe('/todos', () => {
 		it('should return 404 if todo is not found', (done) => {
 			request(app)
 				.get(`/todos/${new ObjectID().toHexString()}`)
+				.set('x-auth', users[4].tokens[0].token)
 				.expect(404)
 				.end(done);
 		});
@@ -94,6 +100,7 @@ describe('/todos', () => {
 		it('should return 404 for non object ids', (done) => {
 			request(app)
 				.get(`/todos/123`)
+				.set('x-auth', users[4].tokens[0].token)
 				.expect(404)
 				.end(done);
 		});
@@ -103,6 +110,7 @@ describe('/todos', () => {
 		it('should remove a todo', (done) => {
 			request(app)
 				.delete(`/todos/${todos[1]._id.toHexString()}`)
+				.set('x-auth', users[4].tokens[0].token)
 				.expect(200)
 				.expect((res) => {
 					expect(res.body.todo._id).toBe(todos[1]._id.toHexString());
@@ -126,6 +134,7 @@ describe('/todos', () => {
 		it('should return 404 if todo not found', (done) => {
 			request(app)
 				.delete(`/todos/z${todos[1]._id.toHexString().substring(1)}`)
+				.set('x-auth', users[4].tokens[0].token)
 				.expect(404)
 				.end(done);
 		});
@@ -133,6 +142,7 @@ describe('/todos', () => {
 		it('should return 404 if object id is invalid', (done) => {
 			request(app)
 				.delete(`/todos/zasdasd`)
+				.set('x-auth', users[4].tokens[0].token)
 				.expect(404)
 				.end(done);
 		});
@@ -144,6 +154,7 @@ describe('/todos', () => {
 
 			request(app)
 				.patch(`/todos/${todos[0]._id.toHexString()}`)
+				.set('x-auth', users[4].tokens[0].token)
 				.send({ text, completed: true })
 				.expect(200)
 				.expect((res) => {
@@ -160,6 +171,7 @@ describe('/todos', () => {
 			request(app)
 				.patch(`/todos/${todos[1]._id.toHexString()}`)
 				.send({ text, completed: false })
+				.set('x-auth', users[4].tokens[0].token)
 				.expect(200)
 				.expect((res) => {
 					expect(res.body.todo.text).toBe(text);
@@ -172,6 +184,7 @@ describe('/todos', () => {
 		it('should return 404 for invalid id', (done) => {
 			request(app)
 				.patch(`/todos/123123`, {})
+				.set('x-auth', users[4].tokens[0].token)
 				.expect(404)
 				.end(done);
 		});
@@ -273,7 +286,7 @@ describe('/users', () => {
 				.expect(200)
 				.end((err, res) => { // eslint-disable-line
 					if (err) {
-						done(err);
+						return done(err);
 					}
 
 					User.findById(users[4]._id)
