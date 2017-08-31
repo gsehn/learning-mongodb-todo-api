@@ -265,6 +265,29 @@ describe('/users', () => {
 		});
 	});
 
+	describe('DELETE /users/me/token', () => {
+		it('should remove auth token on logout', (done) => {
+			request(app)
+				.delete('/users/me/token')
+				.set('x-auth', users[4].tokens[0].token)
+				.expect(200)
+				.end((err, res) => { // eslint-disable-line
+					if (err) {
+						done(err);
+					}
+
+					User.findById(users[4]._id)
+					.then((user) => {
+						expect(user.tokens.length).toBe(0);
+						done();
+					})
+					.catch((err) => {
+						done(err);
+					});
+				});
+		});
+	});
+
 	describe('POST /users/login', () => {
 
 		it('should login successfully', (done) => {
