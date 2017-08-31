@@ -3,7 +3,6 @@ require('./config/config');
 const express = require('express');
 const bodyParser = require('body-parser');
 const _ = require('lodash');
-// const bc = require('bcryptjs');
 const {ObjectID} = require('mongodb');
 
 const {mongoose} = require('./db/mongoose'); // eslint-disable-line
